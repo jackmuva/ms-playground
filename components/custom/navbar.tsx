@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { getSignInUrl, signOut } from "@workos-inc/authkit-nextjs";
-import { BookOpen, UserRound } from "lucide-react";
+import { BookOpen, Code, UserRound } from "lucide-react";
 
 export const Navbar = async () => {
   let { user } = await userWithToken();
@@ -21,7 +21,6 @@ export const Navbar = async () => {
     <>
       <div className="bg-background absolute top-0 left-0 w-dvw py-2 px-3 justify-between flex flex-row items-center z-30 border-b">
         <div className="flex flex-row gap-3 items-center">
-          <History user={user} />
           <div className="flex flex-row gap-2 items-center">
             <img src="/images/paragon-no-text.svg" />
             <div className="text-sm dark:text-zinc-300 flex items-center font-bold">
@@ -36,7 +35,15 @@ export const Navbar = async () => {
           <a
             className="mr-2 text-sm font-semibold flex items-center rounded hover:bg-secondary py-1.5 px-2 transition-colors"
             target="_blank"
-            href="https://docs.useparagon.com/~/changes/VCSATz0qt64lvbGPABJk/api/actionkit/actionkit-playground"
+            href="https://github.com/useparagon"
+          >
+            <Code className="h-4" />
+            Source Code
+          </a>
+          <a
+            className="mr-2 text-sm font-semibold flex items-center rounded hover:bg-secondary py-1.5 px-2 transition-colors"
+            target="_blank"
+            href="https://paragon-managed-sync.mintlify.app/sync/overview"
           >
             <BookOpen className="h-4" />
             Docs

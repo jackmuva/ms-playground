@@ -2,11 +2,11 @@
 
 import { createClient } from "@libsql/client";
 import { genSaltSync, hashSync } from "bcrypt-ts";
-import { desc, eq, and } from "drizzle-orm";
+import { desc, eq, and, max, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/libsql";
 require('dotenv').config();
 
-import { user, chat, User, SyncedObject, syncedObject, activity, Activity } from "./schema";
+import { user, User, Record, record, activity, Activity } from "./schema";
 
 let db = drizzle(
   createClient({
@@ -63,99 +63,9 @@ export async function createUser(
   }
 }
 
-export async function saveChat({
-  id,
-  messages,
-  email,
-  systemPrompt,
-  tools = [],
-  modelName,
-  modelProvider,
-}: {
-  id: string;
-  messages: any;
-  email: string;
-  systemPrompt: string;
-  tools: { name: string }[];
-  modelName: string;
-  modelProvider: string;
-}) {
+export async function getSyncedObjectByUserIdAndSource({ id, source }: { id: string, source: string }): Promise<Array<Record>> {
   try {
-    const selectedChats = await db.select().from(chat).where(eq(chat.id, id));
-    let user = await getUser(email);
-    if (!user || user.length === 0) {
-      if (email === STATIC_USER.email && process.env.ENABLE_AUTH === "false") {
-        await createUser(email, "static-user-password", STATIC_USER.id);
-        user = await getUser(email);
-      } else {
-        throw new Error("Could not find user");
-      }
-    }
-
-    if (selectedChats.length > 0) {
-      return await db
-        .update(chat)
-        .set({
-          messages,
-          systemPrompt,
-          tools: tools.map((tool) => tool.name),
-          modelName,
-          modelProvider,
-        })
-        .where(eq(chat.id, id));
-    }
-
-    return await db.insert(chat).values({
-      id,
-      createdAt: new Date(),
-      messages,
-      userId: user[0].id,
-      modelName,
-      modelProvider,
-      systemPrompt,
-      tools: tools.map((tool) => tool.name),
-    });
-  } catch (error) {
-    console.error("Failed to save chat in database", error);
-    throw error;
-  }
-}
-
-export async function deleteChatById({ id }: { id: string }) {
-  try {
-    return await db.delete(chat).where(eq(chat.id, id));
-  } catch (error) {
-    console.error("Failed to delete chat by id from database");
-    throw error;
-  }
-}
-
-export async function getChatsByUserId({ id }: { id: string }) {
-  try {
-    return await db
-      .select()
-      .from(chat)
-      .where(eq(chat.userId, id))
-      .orderBy(desc(chat.createdAt));
-  } catch (error) {
-    console.error("Failed to get chats by user from database");
-    throw error;
-  }
-}
-
-export async function getChatById({ id }: { id: string }) {
-  try {
-    const [selectedChat] = await db.select().from(chat).where(eq(chat.id, id));
-    return selectedChat;
-  } catch (error) {
-    console.error("Failed to get chat by id from database");
-    throw error;
-  }
-}
-
-export async function getSyncedObjectByUserIdAndSource({ id, source }: { id: string, source: string }): Promise<Array<SyncedObject>> {
-  try {
-    return await db.select().from(syncedObject).where(and(eq(syncedObject.userId, id), eq(syncedObject.source, source)));
+    return await db.select().from(record).where(and(eq(record.userId, id), eq(record.source, source)));
   } catch (error) {
     console.error("Failed to get user's synced objects from database", error);
     throw error;
@@ -180,7 +90,7 @@ export async function createSyncedObject({
   source: string
 }) {
   try {
-    return await db.insert(syncedObject).values({
+    return await db.insert(record).values({
       syncObjectId: syncObjectId,
       externalId: externalId,
       createdAt: createdAt,
@@ -271,6 +181,35 @@ export async function createSyncTrigger({
     });
   } catch (error) {
     console.error("Failed to create activity in database");
+    throw error;
+  }
+}
+
+export async function getAllSyncs({ id }: { id: string }) {
+  try {
+    const syncIds = await db.select({
+      syncId: activity.syncId,
+      receivedAt: max(activity.receivedAt)
+    }).from(activity)
+      .where(and(
+        eq(activity.event, "sync_triggered"),
+        eq(activity.userId, id)))
+      .groupBy(activity.source)
+
+    // Filter out null syncIds
+    const validSyncIds = syncIds
+      .map((sync) => sync.syncId)
+      .filter((syncId): syncId is string => syncId !== null);
+
+    if (validSyncIds.length === 0) {
+      return [];
+    }
+
+    return await db.select().from(activity).where(
+      inArray(activity.syncId, validSyncIds)
+    ).limit(1);
+  } catch (error) {
+    console.error("Failed to retrieve syncs");
     throw error;
   }
 }

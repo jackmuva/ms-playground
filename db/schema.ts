@@ -17,34 +17,8 @@ export const user = sqliteTable("User", {
 
 export type User = InferSelectModel<typeof user>;
 
-export const chat = sqliteTable(
-  "Chat",
-  {
-    id: text("id").notNull().primaryKey().$defaultFn(v4),
-    createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
-    messages: text("messages", { mode: "json" }).$type<Message[]>().notNull(),
-    userId: text("userId").notNull(),
-    systemPrompt: text("systemPrompt").notNull(),
-    tools: text("tools", { mode: "json" }).notNull(),
-    modelName: text("modelName").notNull(),
-    modelProvider: text("modelProvider").notNull(),
-  },
-  (table) => {
-    return {
-      // For foreign keys in SQLite, the recommended Drizzle approach:
-      chatUserIdUserIdFk: foreignKey({
-        columns: [table.userId],
-        foreignColumns: [user.id],
-        name: "Chat_userId_User_id_fk",
-      }),
-    };
-  }
-);
-
-export type Chat = InferSelectModel<typeof chat>;
-
-export const syncedObject = sqliteTable(
-  "SyncedObject",
+export const record = sqliteTable(
+  "Record",
   {
     id: text("id").notNull().primaryKey().$defaultFn(v4),
     syncObjectId: text("syncObjectId").notNull(),
@@ -60,13 +34,13 @@ export const syncedObject = sqliteTable(
       SyncedObjectUserIdUserIdFk: foreignKey({
         columns: [table.userId],
         foreignColumns: [user.id],
-        name: "SyncedObject_userId_User_id_fk",
+        name: "Record_userId_User_id_fk",
       }),
     };
   }
 );
 
-export type SyncedObject = InferSelectModel<typeof syncedObject>;
+export type Record = InferSelectModel<typeof record>;
 
 export const activity = sqliteTable(
   "Activity",
@@ -91,3 +65,27 @@ export const activity = sqliteTable(
 );
 
 export type Activity = InferSelectModel<typeof activity>;
+
+//TODO: Evaluate if this is needed
+//export const syncPipeline = sqliteTable(
+//  "SyncPipeline",
+//  {
+//    id: text("id").notNull().primaryKey().$defaultFn(v4),
+//    syncId: text("syncId"),
+//    source: text("source").notNull(),
+//    lastSynced: integer("lastSynced", { mode: "timestamp" }).notNull(),
+//    data: text("data", { mode: "json" }).notNull(),
+//    userId: text("userId").notNull(),
+//  },
+//  (table) => {
+//    return {
+//      SyncPipelineUserIdUserIdFk: foreignKey({
+//        columns: [table.userId],
+//        foreignColumns: [user.id],
+//        name: "SyncPipeline_userId_user_id_fk",
+//      }),
+//    }
+//  }
+//);
+//
+//export type SyncPipeline = InferSelectModel<typeof activity>;
