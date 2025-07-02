@@ -6,7 +6,7 @@ import { desc, eq, and, max, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/libsql";
 require('dotenv').config();
 
-import { user, User, Record, record, activity, Activity } from "./schema";
+import { user, User, Record, record, activity, Activity, syncPipeline } from "./schema";
 
 let db = drizzle(
   createClient({
@@ -185,32 +185,52 @@ export async function createSyncTrigger({
   }
 }
 
-export async function getAllSyncs({ id }: { id: string }) {
+export async function getAllSyncs({ userId }: { userId: string }) {
   try {
-    const syncIds = await db.select({
-      syncId: activity.syncId,
-      receivedAt: max(activity.receivedAt)
-    }).from(activity)
-      .where(and(
-        eq(activity.event, "sync_triggered"),
-        eq(activity.userId, id)))
-      .groupBy(activity.source)
-
-    // Filter out null syncIds
-    const validSyncIds = syncIds
-      .map((sync) => sync.syncId)
-      .filter((syncId): syncId is string => syncId !== null);
-
-    if (validSyncIds.length === 0) {
-      return [];
-    }
-
-    return await db.select().from(activity).where(
-      inArray(activity.syncId, validSyncIds)
-    ).limit(1);
+    return await db.select().from(syncPipeline).where(eq(syncPipeline.userId, userId));
   } catch (error) {
     console.error("Failed to retrieve syncs");
     throw error;
   }
 }
+
+export async function upsertSyncPipeline({
+  syncId,
+  source,
+  lastSynced,
+  status,
+  userId,
+  data,
+}: {
+  syncId: string,
+  source: string,
+  lastSynced: Date,
+  status: string,
+  userId: string,
+  data: string,
+}) {
+  try {
+    const pipeline = await db.select().from(syncPipeline).where(eq(syncPipeline.syncId, syncId));
+    if (pipeline) {
+      return await db.update(syncPipeline).set({
+        lastSynced: lastSynced,
+        status: status,
+        data: data,
+      }).where(eq(syncPipeline.syncId, syncId));
+    } else {
+      return await db.insert(syncPipeline).values({
+        syncId: syncId,
+        source: source,
+        lastSynced: lastSynced,
+        status: status,
+        userId: userId,
+        data: data
+      });
+    }
+  } catch (error) {
+    console.error("failed to create pipeline record");
+    throw error;
+  }
+}
+
 

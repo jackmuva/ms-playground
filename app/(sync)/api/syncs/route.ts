@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 	}
 
 	try {
-		const syncs = await getAllSyncs({ id: user[0].id });
+		const syncs = await getAllSyncs({ userId: user[0].id });
 		console.log(`[SYNCS] successfully retrieved`);
 		return Response.json(syncs);
 	} catch (error) {

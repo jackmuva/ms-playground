@@ -1,24 +1,36 @@
 "use client";
 import { fetcher } from "@/lib/utils";
-import { Activity } from "@/db/schema";
+import { SyncPipeline } from "@/db/schema";
 import useSWR from "swr";
+import { Button } from "../ui/button";
 
 export const SyncTable = ({
 	session
 }: {
 	session: { user: any, paragonUserToken?: string }
 }) => {
-	const { data: syncs, isLoading, } = useSWR<Array<Activity>>(session ? `/api/syncs` : null,
+	const { data: syncs, isLoading, } = useSWR<Array<SyncPipeline>>(session ? `/api/syncs` : null,
 		fetcher, { fallbackData: [] });
 	console.log(syncs);
 
 
 	return (
-		<div className="w-11/12 pt-5 flex flex-col items-center">
-			<div>
-				<h1 className="font-semibold text-2xl mb-4">
-					Syncs
-				</h1>
+		<div className="w-11/12 pt-5 flex">
+			<div className="w-full flex flex-col items-center">
+				<div className="max-w-[1200px] w-full flex justify-between">
+					<h1 className="font-semibold text-2xl mb-4">
+						Syncs
+					</h1>
+					{syncs && syncs.length > 0 && <Button
+						variant="outline"
+						size="sm"
+						className="bg-indigo-700 text-white"
+						onClick={() => console.log("placeholder")}
+					>
+						+ Add a sync
+					</Button>}
+
+				</div>
 				{isLoading ? (
 					<div className="flex flex-col">
 						{[44, 32, 28, 52].map((item) => (
@@ -30,7 +42,7 @@ export const SyncTable = ({
 						))}
 					</div>
 				) : (
-					syncs ? (
+					(syncs && syncs.length > 0) ? (
 						<table className="max-w-[1200px] w-full table-fixed">
 							<thead>
 								<tr>
@@ -45,8 +57,8 @@ export const SyncTable = ({
 									return (
 										<tr key={sync.id} className="border-2 rounded-xl m-1 ">
 											<td className="text-center py-6">{sync.source}</td>
-											<td className="text-center">placeholder</td>
-											<td className="text-center">{new Date(sync.receivedAt).toLocaleString()}</td>
+											<td className="text-center">{sync.status}</td>
+											<td className="text-center">{new Date(sync.lastSynced).toLocaleString()}</td>
 											<td></td>
 										</tr>
 									);
@@ -54,8 +66,22 @@ export const SyncTable = ({
 							</tbody>
 						</table>
 					) : (
-						<>
-						</>
+						<div className="max-w-[1200px] w-full h-96 flex flex-col space-y-4 items-center justify-center border-2 rounded-sm">
+							<p className="font-semibold"> Create your first sync:</p>
+							<Button
+								variant="outline"
+								size="sm"
+								className="bg-indigo-700 text-white"
+								onClick={() => console.log("placeholder")}
+							>
+								+ Add a sync
+							</Button>
+							<p className="text-sm text-gray-500 text-center">
+								You can select what access your Sync has over your account for testing.
+								<br />
+								Only metadata for records are stored and will be completely removed after 24 hours.
+							</p>
+						</div>
 					)
 				)}
 			</div>
