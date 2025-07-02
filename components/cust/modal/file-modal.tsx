@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import useParagon from "@/lib/paragon/useParagon";
+import { paragon } from "@useparagon/connect";
+import { useState } from "react";
 
 export const FileModal = ({
 	integration,
@@ -10,21 +12,37 @@ export const FileModal = ({
 	session: { user: any, paragonUserToken?: string },
 	goBack: () => void;
 }) => {
-	const { user, paragon } = useParagon(
+	const { user: user, paragon: paragonConnect } = useParagon(
 		session.paragonUserToken ?? ""
 	);
+	const [folder, setFolder] = useState<any>({});
 
 	const disconnectIntegration = async (integration: string) => {
-		await paragon?.uninstallIntegration(integration);
+		await paragonConnect?.uninstallIntegration(integration);
 	}
 
 	const connectIntegration = async (integration: string) => {
-		await paragon?.installIntegration(integration);
+		await paragonConnect?.installIntegration(integration);
 	}
 
+	//@ts-ignore
 	const enabled = user?.integrations[integration.type]?.enabled!
 
-	//TODO: listener for paragon integration installed
+	const openFilePicker = async () => {
+		let picker = new paragon.ExternalFilePicker(integration.type, {
+			allowedTypes: ["application/vnd.google-apps.folder"],
+			allowMultiSelect: false,
+			allowFolderSelect: true,
+			onFileSelect: (files) => {
+				console.log(files)
+				setFolder(files);
+			}
+		});
+		if (process.env.NEXT_PUBLIC_GOOGLE_API_KEY) {
+			await picker.init({ developerKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY });
+			picker.open();
+		}
+	}
 
 	return (
 		<div className="flex flex-col space-y-2 items-center">
@@ -59,8 +77,37 @@ export const FileModal = ({
 					{enabled ? "Disconnect" : "Connect"}
 				</Button>
 			</>) : (<>
-
-			</>)}
-		</div>
+				<div className="flex flex-col w-full">
+					<div className="flex space-x-2 w-full items-center">
+						<div className="rounded-full h-[15px] w-[15px] bg-green-500" />
+						<p>Google Drive account connected</p>
+					</div>
+					<div className="border-l border-muted-foreground h-2 ml-[6.5px]" />
+					<div className="flex space-x-2 w-full items-center">
+						<div className={`rounded-full h-[15px] w-[15px] ${Object.keys(folder).length === 0 ? "border border-muted-foreground" : "bg-green-500"}`} />
+						<p>Select a Google Drive folder</p>
+					</div>
+				</div>
+				{Object.keys(folder).length === 0 ? (<Button
+					variant="default"
+					size={"sm"}
+					className={"bg-indigo-700 text-white"}
+					onClick={() => openFilePicker()}>
+					Select folder
+				</Button>) : (<div className="flex items-center justify-center space-x-2">
+					<div className="px-2 py-1 border-2 border-indigo-700">
+						/{folder.docs[0].name}
+					</div>
+					<Button
+						variant="default"
+						size={"sm"}
+						className={"bg-indigo-700 text-white"}
+						onClick={() => openFilePicker()}>
+						Update
+					</Button>
+				</div>)}
+			</>)
+			}
+		</div >
 	)
 }
