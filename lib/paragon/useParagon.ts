@@ -1,28 +1,10 @@
-import { FunctionTool } from "@/app/(chat)/api/chat/route";
 import ConnectSDK from "@useparagon/connect/ConnectSDK";
-import { useCallback, useEffect, useRef, useState } from "react";
-
-export type ParagraphTypes = Record<
-  string,
-  {
-    title: string;
-    name: string;
-    output: any[];
-    inputs: ActionInput[];
-  }[]
->;
-
-export type ActionInput = {
-  id: string;
-  title: string;
-  type: string;
-  subtitle?: string;
-  placeholder?: string;
-  required?: boolean;
-  values?: Array<{ value: string; dependentInputs?: ActionInput[] }>;
-};
+import { useCallback, useEffect, useState } from "react";
 
 let paragon: ConnectSDK | undefined;
+
+export const CRM_CATEGORY = ['salesforce', 'hubspot']
+export const FILE_CATEGORY = ['googledrive', 'box', 'dropbox', 'sharepoint']
 
 export default function useParagon(paragonUserToken: string) {
   useEffect(() => {
@@ -33,32 +15,14 @@ export default function useParagon(paragonUserToken: string) {
 
   const [user, setUser] = useState(paragon ? paragon.getUser() : null);
   const [error, setError] = useState();
-  const [actionTypes, setActionTypes] = useState<{
-    [action: string]: FunctionTool[];
-  }>({});
 
   const updateUser = useCallback(async () => {
     if (!paragon) {
       return;
     }
     const authedUser = paragon.getUser();
-    if (authedUser.authenticated) {
-      const r = await fetch(
-        `https://actionkit.useparagon.com/projects/${process.env.NEXT_PUBLIC_PARAGON_PROJECT_ID!}/actions`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${paragonUserToken}`,
-          },
-        }
-      );
-      const tools = await r.json();
-      if (r.ok) {
-        setActionTypes(tools.actions);
-      }
 
-      setUser({ ...authedUser });
-    }
+    setUser({ ...authedUser });
   }, []);
 
   // Listen for account state changes
@@ -92,6 +56,5 @@ export default function useParagon(paragonUserToken: string) {
     user,
     error,
     updateUser,
-    actionTypes,
   };
 }

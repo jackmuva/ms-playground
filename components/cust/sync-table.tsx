@@ -3,6 +3,20 @@ import { fetcher } from "@/lib/utils";
 import { SyncPipeline } from "@/db/schema";
 import useSWR from "swr";
 import { Button } from "../ui/button";
+import { useState } from "react";
+import { SyncModal } from "./sync-modal";
+export const LoadingTable = () => {
+	return (<div className="flex flex-col max-w-[1200px] w-full">
+		{[44, 32, 28, 52].map((item) => (
+			<div key={item} className="p-2 my-[2px]">
+				<div
+					className={`w-${item} h-[20px] rounded-md bg-zinc-200 dark:bg-zinc-600 animate-pulse`}
+				/>
+			</div>
+		))}
+	</div>
+	)
+}
 
 export const SyncTable = ({
 	session
@@ -11,7 +25,11 @@ export const SyncTable = ({
 }) => {
 	const { data: syncs, isLoading, } = useSWR<Array<SyncPipeline>>(session ? `/api/syncs` : null,
 		fetcher, { fallbackData: [] });
-	console.log(syncs);
+	const [openModal, setOpenModal] = useState<boolean>(false);
+
+	const toggleModal = () => {
+		setOpenModal((prev) => !prev);
+	}
 
 
 	return (
@@ -25,23 +43,13 @@ export const SyncTable = ({
 						variant="outline"
 						size="sm"
 						className="bg-indigo-700 text-white"
-						onClick={() => console.log("placeholder")}
+						onClick={() => toggleModal()}
 					>
 						+ Add a sync
 					</Button>}
 
 				</div>
-				{isLoading ? (
-					<div className="flex flex-col">
-						{[44, 32, 28, 52].map((item) => (
-							<div key={item} className="p-2 my-[2px]">
-								<div
-									className={`w-${item} h-[20px] rounded-md bg-zinc-200 dark:bg-zinc-600 animate-pulse`}
-								/>
-							</div>
-						))}
-					</div>
-				) : (
+				{isLoading ? (<LoadingTable />) : (
 					(syncs && syncs.length > 0) ? (
 						<table className="max-w-[1200px] w-full table-fixed">
 							<thead>
@@ -72,7 +80,7 @@ export const SyncTable = ({
 								variant="outline"
 								size="sm"
 								className="bg-indigo-700 text-white"
-								onClick={() => console.log("placeholder")}
+								onClick={() => toggleModal()}
 							>
 								+ Add a sync
 							</Button>
@@ -85,6 +93,7 @@ export const SyncTable = ({
 					)
 				)}
 			</div>
+			{openModal && <SyncModal session={session} closeModal={toggleModal} />}
 		</div >
 	);
 }
