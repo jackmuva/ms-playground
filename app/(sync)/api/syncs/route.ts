@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 	try {
 		const syncs = await getAllSyncs({ id: user[0].id });
 		console.log(`[SYNCS] successfully retrieved`);
-		return Response.json({ syncs: syncs });
+		return Response.json(syncs);
 	} catch (error) {
 		console.error("[SYNCS] failed to retrieve");
 		return Response.json({ message: error });

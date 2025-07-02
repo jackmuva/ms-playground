@@ -2,13 +2,13 @@
 import React, { useState } from "react";
 import useSWR from "swr";
 import { fetcher } from "@/lib/utils";
-import { SyncedObject } from "@/db/schema";
+import { Record } from "@/db/schema";
 import { ChevronDown } from "lucide-react";
 import { SyncedObjectDropdown } from "./synced-object-dropdown";
 
 export function SyncedObjectsView({ session, selectedSource, }: { session: { user: any, paragonUserToken?: string }, selectedSource: { name: string, type: string, icon: string | undefined }, }) {
   const [expandedRow, setExpandedRows] = useState<Set<string>>(new Set());
-  const { data: syncedObjects, isLoading, } = useSWR<Array<SyncedObject>>(session ? `/api/records/?source=${selectedSource.type}` : null,
+  const { data: syncedObjects, isLoading, } = useSWR<Array<Record>>(session ? `/api/records/?source=${selectedSource.type}` : null,
     fetcher, { fallbackData: [] });
 
   const toggleRow = (rowId: string) => {
