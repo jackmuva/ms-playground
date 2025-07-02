@@ -4,7 +4,7 @@ import { SyncPipeline } from "@/db/schema";
 import useSWR from "swr";
 import { Button } from "../ui/button";
 import { useState } from "react";
-import { SyncModal } from "./sync-modal";
+import { SyncModal } from "./modal/sync-modal";
 export const LoadingTable = () => {
 	return (<div className="flex flex-col max-w-[1200px] w-full">
 		{[44, 32, 28, 52].map((item) => (

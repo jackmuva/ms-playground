@@ -330,7 +330,7 @@ export default function Integrations({
   );
 }
 
-export const LoadingSkeleton = () => {
+const LoadingSkeleton = () => {
   return Array(5)
     .fill(null)
     .map((_, i) => (
