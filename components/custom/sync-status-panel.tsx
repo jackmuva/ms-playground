@@ -34,14 +34,14 @@ export const SyncStatusPanel = ({
 				mutate();
 			}).catch((err) => {
 				console.error('unable to check status', err);
-			});;;
+			});
 		}
 	}, [sync]);
 	const [steps, setSteps] = useState<Array<SyncStep>>([
 		{ description: "Discovered files available", status: "completed" },
-		{ description: "Normalized metadata for files", status: "completed" },
-		{ description: "Built permissions graph", status: "completed" },
-		{ description: "Setting up change detection", status: "in-progress" },
+		{ description: "Normalized metadata for files", status: "not-started" },
+		{ description: "Built permissions graph", status: "not-started" },
+		{ description: "Setting up change detection", status: "not-started" },
 	]);
 
 	return (

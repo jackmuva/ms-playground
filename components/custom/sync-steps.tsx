@@ -17,7 +17,7 @@ export const SyncSteps = ({
                 (step.status === "in-progress" ? (
                   <div className="rounded-full h-[15px] w-[15px] bg-indigo-600 animate-pulse" />
                 ) : (
-                  <></>
+                  <div className="rounded-full h-[15px] w-[15px] border border-muted-foreground" />
                 ))}
               <p className="text-sm text-muted-foreground">{step.description}</p>
             </div>
