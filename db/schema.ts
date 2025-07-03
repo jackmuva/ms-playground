@@ -42,8 +42,8 @@ export const record = sqliteTable(
 
 export type Record = InferSelectModel<typeof record>;
 
-export const activity = sqliteTable(
-  "Activity",
+export const webhook = sqliteTable(
+  "Webhook",
   {
     id: text("id").notNull().primaryKey().$defaultFn(v4),
     syncId: text("syncId"),
@@ -55,12 +55,12 @@ export const activity = sqliteTable(
   },
   (table) => {
     return {
-      ActivityUserIdUserIdFk: foreignKey({
+      WebhookUserIdUserIdFk: foreignKey({
         columns: [table.userId],
         foreignColumns: [user.id],
         name: "Activity_userId_User_id_fk",
       }),
-      ActivitySyncIdFk: foreignKey({
+      WebhookSyncIdFk: foreignKey({
         columns: [table.syncId],
         foreignColumns: [syncPipeline.syncId],
         name: "Activity_SyncId_SyncPipeline_syncId_fk"
@@ -69,7 +69,7 @@ export const activity = sqliteTable(
   }
 );
 
-export type Activity = InferSelectModel<typeof activity>;
+export type Webhook = InferSelectModel<typeof webhook>;
 
 export const syncPipeline = sqliteTable(
   "SyncPipeline",

@@ -1,10 +1,10 @@
 import { userWithToken } from "@/app/(auth)/auth";
-import { getSyncBySource, getUser } from "@/db/queries";
+import { getRecordsByUserIdAndSource, getUser } from "@/db/queries";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
-	const session = await userWithToken();
 	const source = request.nextUrl.searchParams.get("source");
+	const session = await userWithToken();
 
 	if (!session || !session.user) {
 		return Response.json("Unauthorized!", { status: 401 });
@@ -15,13 +15,6 @@ export async function GET(request: NextRequest) {
 		return Response.json("No user found", { status: 500 });
 	}
 
-	try {
-		const sync = await getSyncBySource({ userId: user[0].id, source: source ?? "" });
-		console.log(`[LIST SYNC] successfully retrieved`);
-		return Response.json(sync);
-	} catch (error) {
-		console.error("[LIST SYNC] failed to retrieve");
-		return Response.json({ message: error });
-	}
-
+	const records = await getRecordsByUserIdAndSource({ id: user[0].id, source: source ?? "" });
+	return Response.json(records);
 }

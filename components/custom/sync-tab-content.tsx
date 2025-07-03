@@ -1,8 +1,7 @@
 "use client";
-import useSWR from "swr";
-import { SyncPipeline } from "@/db/schema";
-import { fetcher } from "@/lib/utils";
 import { useState } from "react";
+import { RecordsTable } from "./records-table";
+import { WebhooksTable } from "./webhooks-table";
 
 export enum Tab {
 	RECORDS = "Records",
@@ -34,13 +33,9 @@ export const SyncTabContent = ({
 			</div>
 			<div>
 				{activeTab === Tab.RECORDS ? (
-					<>
-						hi
-					</>) : (
+					<RecordsTable session={session} source={source} />) : (
 					activeTab === Tab.WEBHOOKS ? (
-						<>
-
-						</>) : (
+						<WebhooksTable session={session} source={source} />) : (
 						activeTab === Tab.PERMISSIONS ? (
 							<>
 

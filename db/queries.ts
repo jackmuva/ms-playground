@@ -6,7 +6,7 @@ import { desc, eq, and, max, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/libsql";
 require('dotenv').config();
 
-import { user, User, Record, record, activity, Activity, syncPipeline } from "./schema";
+import { user, User, Record, record, webhook, Webhook, syncPipeline } from "./schema";
 
 let db = drizzle(
   createClient({
@@ -63,7 +63,7 @@ export async function createUser(
   }
 }
 
-export async function getSyncedObjectByUserIdAndSource({ id, source }: { id: string, source: string }): Promise<Array<Record>> {
+export async function getRecordsByUserIdAndSource({ id, source }: { id: string, source: string }): Promise<Array<Record>> {
   try {
     return await db.select().from(record).where(and(eq(record.userId, id), eq(record.source, source)));
   } catch (error) {
@@ -72,7 +72,7 @@ export async function getSyncedObjectByUserIdAndSource({ id, source }: { id: str
   }
 }
 
-export async function createSyncedObject({
+export async function createRecord({
   syncObjectId,
   externalId,
   createdAt,
@@ -105,32 +105,32 @@ export async function createSyncedObject({
   }
 }
 
-export async function getActivityByUserIdAndSource({ id, source }: { id: string, source: string }): Promise<Array<Activity>> {
+export async function getWebhooksByUserIdAndSource({ id, source }: { id: string, source: string }): Promise<Array<Webhook>> {
   try {
-    return await db.select().from(activity).where(and(eq(activity.source, source), eq(activity.userId, id)));
+    return await db.select().from(webhook).where(and(eq(webhook.source, source), eq(webhook.userId, id)));
   } catch (error) {
-    console.error("Failed to get user's activity from database", error);
+    console.error("Failed to get user's webhook from database", error);
     throw error;
   }
 }
 
-export async function getSyncTriggerByUserIdAndSource({ id, source }: { id: string, source: string }): Promise<Array<Activity>> {
-  try {
-    return await db.select().from(activity)
-      .where(and(
-        eq(activity.event, "sync_triggered"),
-        eq(activity.source, source),
-        eq(activity.userId, id)))
-      .orderBy(desc(activity.receivedAt))
-      .limit(1);
-  } catch (error) {
-    console.error("Failed to get trigger activity from database", error);
-    throw error;
-  }
-}
+//export async function getSyncTriggerByUserIdAndSource({ id, source }: { id: string, source: string }): Promise<Array<Activity>> {
+//  try {
+//    return await db.select().from(activity)
+//      .where(and(
+//        eq(activity.event, "sync_triggered"),
+//        eq(activity.source, source),
+//        eq(activity.userId, id)))
+//      .orderBy(desc(activity.receivedAt))
+//      .limit(1);
+//  } catch (error) {
+//    console.error("Failed to get trigger activity from database", error);
+//    throw error;
+//  }
+//}
 
 
-export async function createActivity({
+export async function createWebhook({
   event,
   source,
   receivedAt,
@@ -144,7 +144,7 @@ export async function createActivity({
   userId: string,
 }) {
   try {
-    return await db.insert(activity).values({
+    return await db.insert(webhook).values({
       event: event,
       source: source,
       receivedAt: receivedAt,
@@ -152,7 +152,7 @@ export async function createActivity({
       userId: userId
     });
   } catch (error) {
-    console.error("Failed to create activity in database");
+    console.error("Failed to create webhook in database");
     throw error;
   }
 }

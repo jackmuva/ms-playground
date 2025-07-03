@@ -2,6 +2,29 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 
+export const downloadRecord = async (syncId: string, recordId: string) => {
+  fetch(`${window.location.origin}/api/records/content`, {
+    method: "POST",
+    body: JSON.stringify({ syncId: syncId, recordId: recordId }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then(resp => resp.status === 200 ? resp.blob() : Promise.reject('something went wrong'))
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'file';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      alert('your file has downloaded!');
+    })
+    .catch(() => alert('oh no!'));
+}
+
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
