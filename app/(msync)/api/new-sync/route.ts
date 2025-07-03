@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
 			userId: user[0].id,
 			data: JSON.stringify(syncResponse),
 			config: JSON.stringify(body.config),
+			recordCount: 0
 		});
 		console.log(`[NEW SYNC] successfully created`);
 		return Response.json(syncResponse);

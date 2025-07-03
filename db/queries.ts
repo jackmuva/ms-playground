@@ -251,4 +251,29 @@ export async function upsertSyncPipeline({
   }
 }
 
-
+export async function updateSyncStatus({
+  syncId,
+  data,
+  recordCount,
+  status,
+  lastSynced,
+}: {
+  syncId: string,
+  data: string,
+  recordCount: number,
+  status: string,
+  lastSynced: Date,
+}) {
+  try {
+    return await db.update(syncPipeline).set({
+      syncId: syncId,
+      data: data,
+      recordCount: recordCount,
+      status: status,
+      lastSynced: lastSynced,
+    }).where(eq(syncPipeline.syncId, syncId));
+  } catch (error) {
+    console.error("failed to update sync status");
+    throw error;
+  }
+}

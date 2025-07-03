@@ -32,6 +32,24 @@ export const SyncTabContent = ({
 					);
 				})}
 			</div>
+			<div>
+				{activeTab === Tab.RECORDS ? (
+					<>
+						hi
+					</>) : (
+					activeTab === Tab.WEBHOOKS ? (
+						<>
+
+						</>) : (
+						activeTab === Tab.PERMISSIONS ? (
+							<>
+
+							</>) : (
+							<>
+
+							</>
+						)))}
+			</div>
 		</>
 	);
 }

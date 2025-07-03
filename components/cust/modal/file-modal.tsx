@@ -113,23 +113,30 @@ export const FileModal = ({
 					className={"bg-indigo-700 text-white"}
 					onClick={() => openFilePicker()}>
 					Select folder
-				</Button>) : (<div className="flex items-center justify-center space-x-2">
-					<div className="px-2 py-1 border-2 border-indigo-700">
-						{isLoading ? (
-							<div className="p-2 my-[2px]">
-								<div
-									className={`w-4 h-[20px] rounded-md bg-zinc-200 dark:bg-zinc-600 animate-pulse`}
-								/>
-							</div>
-						) : (<p>/{folder.name}</p>)}
+				</Button>) : (<div className="flex flex-col space-y-16 w-full">
+					<div className="flex items-center justify-center space-x-2">
+						<div className="px-2 py-1 border-2 border-indigo-700">
+							{isLoading ? (
+								<div className="p-2 my-[2px]">
+									<div
+										className={`w-4 h-[20px] rounded-md bg-zinc-200 dark:bg-zinc-600 animate-pulse`}
+									/>
+								</div>
+							) : (<p>/{folder.name}</p>)}
+						</div>
+						<Button
+							variant="default"
+							size={"sm"}
+							className={"bg-indigo-700 text-white"}
+							onClick={() => openFilePicker()}>
+							Update
+						</Button>
 					</div>
-					<Button
-						variant="default"
-						size={"sm"}
-						className={"bg-indigo-700 text-white"}
-						onClick={() => openFilePicker()}>
-						Update
-					</Button>
+					<a href={`${window.location.origin}/sync-detail/${integration.type}`}
+						className="absolute bottom-4 w-11/12 bg-indigo-700 text-white rounded-sm text-center font-semibold py-2
+							hover:bg-primary/90">
+						Go to Sync Details
+					</a>
 				</div>)}
 			</>)
 			}

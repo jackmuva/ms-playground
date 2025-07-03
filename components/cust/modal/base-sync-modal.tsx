@@ -33,8 +33,8 @@ export const BaseSyncModal = ({
 										<img src={integration.icon} className="h-6 w-6" />
 										<div>{integration.name}</div>
 									</div>
-									<div className={`${enabled ? "bg-green-600/70" : "bg-indigo-500/70"} px-2 rounded-sm text-sm font-semibold`}>
-										<p>{enabled ? "go to sync" : "sync"}</p>
+									<div className={`${enabled ? "bg-gray-400/70" : "bg-indigo-500/70"} px-2 text-sm font-semibold`}>
+										<p>{enabled ? "configure" : "sync"}</p>
 									</div>
 								</div>
 							);
@@ -56,8 +56,8 @@ export const BaseSyncModal = ({
 										<img src={integration.icon} className="h-6 w-6" />
 										<div>{integration.name}</div>
 									</div>
-									<div className={`${enabled ? "bg-green-600/70" : "bg-indigo-500/70"} px-2 rounded-sm text-sm font-semibold`}>
-										<p>{enabled ? "go to sync" : "sync"}</p>
+									<div className={`${enabled ? "bg-gray-400/70" : "bg-indigo-500/70"} px-2 text-sm font-semibold`}>
+										<p>{enabled ? "configure" : "sync"}</p>
 									</div>
 								</div>
 							);

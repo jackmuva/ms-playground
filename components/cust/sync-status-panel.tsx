@@ -2,6 +2,7 @@
 import useSWR from "swr";
 import { SyncPipeline } from "@/db/schema";
 import { fetcher } from "@/lib/utils";
+import { useEffect } from "react";
 
 export const SyncStatusPanel = ({
 	source,
@@ -11,9 +12,26 @@ export const SyncStatusPanel = ({
 	session: { user: any, paragonUserToken?: string }
 }) => {
 
-	const { data: sync, isLoading, } = useSWR<Array<SyncPipeline>>(session ? `/api/get-sync?source=${source}` : null,
+	const { data: sync, isLoading, mutate } = useSWR<Array<SyncPipeline>>(session ? `/api/get-sync?source=${source}` : null,
 		fetcher, { fallbackData: [] });
 	console.log(sync);
+	useEffect(() => {
+		if (sync && sync.length > 0 && sync[0].status === "INITIALIZING") {
+			fetch(`${window.location.origin}/api/check-sync`, {
+				method: "POST",
+				body: JSON.stringify({ syncId: sync[0].syncId }),
+				headers: {
+					"Content-Type": "application/json",
+				},
+
+			}).then((status) => {
+				console.log(status);
+				mutate();
+			}).catch((err) => {
+				console.error('unable to check status', err);
+			});;;
+		}
+	}, [sync]);
 
 	return (
 		<div className="border-2 rounded-sm w-full h-60 flex">
