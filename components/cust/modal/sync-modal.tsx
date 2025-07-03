@@ -1,6 +1,6 @@
 import useParagon, { FILE_CATEGORY } from "@/lib/paragon/useParagon";
 import { X } from "lucide-react"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BaseSyncModal } from "./base-sync-modal";
 import { FileModal } from "./file-modal";
 
@@ -25,11 +25,19 @@ export const LoadingSkeleton = () => {
 export const SyncModal = ({
 	session,
 	closeModal,
+	integration,
 }: {
 	session: { user: any, paragonUserToken?: string },
 	closeModal: () => void,
+	integration?: any,
 }) => {
 	const [selectedIntegration, setSelectedIntegration] = useState<any>({});
+
+	useEffect(() => {
+		if (Object.keys(integration).length > 0) {
+			setSelectedIntegration(integration);
+		}
+	}, [integration]);
 
 	const selectIntegration = (integration: any) => {
 		setSelectedIntegration(integration);

@@ -25,17 +25,18 @@ export const SyncTable = ({
 }) => {
 	const { data: syncs, isLoading, } = useSWR<Array<SyncPipeline>>(session ? `/api/list-syncs` : null,
 		fetcher, { fallbackData: [] });
-	const [openModal, setOpenModal] = useState<boolean>(false);
+	const [syncTableState, setSyncTableState] = useState<{ openModal: boolean, integration: any }>({ openModal: false, integration: {} });
 
-	const toggleModal = () => {
-		setOpenModal((prev) => !prev);
+	const toggleModal = (intg = {}) => {
+		setSyncTableState((prev) => ({ openModal: !prev.openModal, integration: intg }));
 	}
+
 
 
 	return (
 		<div className="w-11/12 pt-5 flex">
 			<div className="w-full flex flex-col items-center">
-				<div className="max-w-[1200px] w-full flex justify-between">
+				<div className="max-w-[1000px] w-full flex justify-between">
 					<h1 className="font-semibold text-2xl mb-4">
 						Syncs
 					</h1>
@@ -51,7 +52,7 @@ export const SyncTable = ({
 				</div>
 				{isLoading ? (<LoadingTable />) : (
 					(syncs && syncs.length > 0) ? (
-						<table className="max-w-[1200px] w-full table-fixed">
+						<table className="max-w-[1000px] w-full table-fixed">
 							<thead>
 								<tr>
 									<th className="p-2 font-semibold">Type</th>
@@ -65,7 +66,7 @@ export const SyncTable = ({
 									return (
 										<tr key={sync.id} className="border-2 rounded-xl m-1 ">
 											<td className="py-6 ">
-												<a href={`${window.location.origin}/sync-detail?source=${sync.source}`}
+												<a href={`${window.location.origin}/sync-detail/${sync.source}`}
 													className="flex space-x-2 items-center justify-center hover:text-indigo-600">
 													<img src={sync.source === 'googledrive' ? "https://cdn.useparagon.com/latest/dashboard/public/integrations/googledrive.svg" : ""}
 														className="h-6 w-6" />
@@ -74,8 +75,15 @@ export const SyncTable = ({
 											</td>
 											<td className="text-center">{sync.status}</td>
 											<td className="text-center">{new Date(sync.lastSynced).toLocaleString()}</td>
-											<td>
-
+											<td className="text-right pr-4">
+												<Button
+													variant="outline"
+													size="sm"
+													className=""
+													onClick={() => toggleModal({ type: sync.source, name: "Google Drive", icon: "https://cdn.useparagon.com/latest/dashboard/public/integrations/googledrive.svg" })}
+												>
+													Configure
+												</Button>
 											</td>
 										</tr>
 									);
@@ -102,7 +110,7 @@ export const SyncTable = ({
 					)
 				)}
 			</div>
-			{openModal && <SyncModal session={session} closeModal={toggleModal} />}
+			{syncTableState.openModal && <SyncModal session={session} closeModal={toggleModal} integration={syncTableState.integration} />}
 		</div >
 	);
 }
