@@ -1,42 +1,45 @@
-"use client";
 import useSWR from "swr";
 import { SyncPipeline } from "@/db/schema";
 import { fetcher } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { SyncSteps } from "./sync-steps";
+import { SyncStatus } from "./sync-detail";
 
 export interface SyncStep {
 	description: string,
 	status: "completed" | "in-progress" | "not-started"
 }
 
+
 export const SyncStatusPanel = ({
 	source,
-	session
+	session,
+	currentSyncStatus,
+	setCurrentSyncStatus,
 }: {
 	source: string,
-	session: { user: any, paragonUserToken?: string }
+	session: { user: any, paragonUserToken?: string },
+	currentSyncStatus: SyncStatus | null,
+	setCurrentSyncStatus: (status: SyncStatus) => void,
 }) => {
 
 	const { data: sync, isLoading, mutate } = useSWR<Array<SyncPipeline>>(session ? `/api/get-sync?source=${source}` : null,
 		fetcher, { fallbackData: [] });
 
 	const [steps, setSteps] = useState<Array<SyncStep>>([
-		{ description: "Discovered files available", status: "completed" },
+		{ description: "Discovered files available", status: "not-started" },
 		{ description: "Normalized metadata for files", status: "not-started" },
 		{ description: "Built permissions graph", status: "not-started" },
 		{ description: "Setting up change detection", status: "not-started" },
 		{ description: "Listening for updates", status: "not-started" },
 	]);
 
-	const [currentSyncStatus, setCurrentSyncStatus] = useState<string | null>(null);
 
 	useEffect(() => {
 		if (sync && sync.length > 0) {
-			const syncStatus = sync[0].status;
+			const syncStatus: SyncStatus = sync[0].status as SyncStatus;
 			if (syncStatus !== currentSyncStatus) {
 				setCurrentSyncStatus(syncStatus);
-
 				if (syncStatus === "INITIALIZING") {
 					setSteps([
 						{ description: "Discovered files available", status: "completed" },
@@ -47,18 +50,7 @@ export const SyncStatusPanel = ({
 					]);
 					initialSteps().then((res) => {
 						if (res) {
-							fetch(`${window.location.origin}/api/check-sync`, {
-								method: "POST",
-								body: JSON.stringify({ syncId: sync[0].syncId }),
-								headers: {
-									"Content-Type": "application/json",
-								},
-							}).then((status) => {
-								console.log(status);
-								mutate();
-							}).catch((err) => {
-								console.error('unable to check status', err);
-							});
+							checkSyncStatus(sync[0].syncId);
 						}
 					});
 				} else if (syncStatus === "ACTIVE") {
@@ -69,7 +61,7 @@ export const SyncStatusPanel = ({
 						{ description: "Setting up change detection", status: "in-progress" },
 						{ description: "Listening for updates", status: "not-started" },
 					]);
-				} else {
+				} else if (syncStatus === "IDLE") {
 					setSteps([
 						{ description: "Discovered files available", status: "completed" },
 						{ description: "Normalized metadata for files", status: "completed" },
@@ -82,7 +74,32 @@ export const SyncStatusPanel = ({
 		}
 	}, [sync, currentSyncStatus]);
 
+	const checkSyncStatus = (syncId: string) => {
+		fetch(`${window.location.origin}/api/check-sync`, {
+			method: "POST",
+			body: JSON.stringify({ syncId: syncId }),
+			headers: {
+				"Content-Type": "application/json",
+			},
+		}).then((status) => {
+			console.log(status);
+			mutate();
+		}).catch((err) => {
+			console.error('unable to check status', err);
+		});
+	}
+
 	const initialSteps = async () => {
+		setSteps(prev => prev.map((step, index) => {
+			return index === 0 ? { ...step, status: "in-progress" } : step
+		}));
+
+		await new Promise(resolve => setTimeout(resolve, 500));
+		setSteps(prev => prev.map((step, index) =>
+			index === 0 ? { ...step, status: "completed" } : step
+		));
+
+
 		await new Promise(resolve => setTimeout(resolve, 500));
 		setSteps(prev => prev.map((step, index) =>
 			index === 1 ? { ...step, status: "in-progress" } : step
