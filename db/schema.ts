@@ -4,6 +4,7 @@ import {
   text,
   integer,
   foreignKey,
+  unique,
 } from "drizzle-orm/sqlite-core";
 import { v4 } from "uuid";
 
@@ -62,7 +63,7 @@ export const activity = sqliteTable(
       ActivitySyncIdFk: foreignKey({
         columns: [table.syncId],
         foreignColumns: [syncPipeline.syncId],
-        name: "Activity_SyncId_Synd_id_fk"
+        name: "Activity_SyncId_SyncPipeline_syncId_fk"
       }),
     };
   }
@@ -74,7 +75,7 @@ export const syncPipeline = sqliteTable(
   "SyncPipeline",
   {
     id: text("id").notNull().primaryKey().$defaultFn(v4),
-    syncId: text("syncId").notNull(),
+    syncId: text("syncId").notNull().unique(),
     source: text("source").notNull(),
     lastSynced: integer("lastSynced", { mode: "timestamp" }).notNull(),
     status: text("status").notNull(),

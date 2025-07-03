@@ -9,9 +9,9 @@ interface CheckSyncPayload {
 interface SyncStatus {
 	status: string,
 	summary: {
-		total_records: number,
-		synced_records_count: number,
-		last_synced_at: string,
+		totalRecords: number,
+		syncedRecordsCount: number,
+		lastSyncedAt: string,
 	}
 }
 
@@ -39,15 +39,15 @@ export async function POST(request: NextRequest) {
 		});
 		const syncResponse: SyncStatus = await syncRequest.json();
 		console.log(syncResponse);
-
-		await updateSyncStatus({
+		updateSyncStatus({
 			syncId: body.syncId,
 			data: JSON.stringify(syncResponse),
-			recordCount: syncResponse.summary.synced_records_count,
+			recordCount: syncResponse.summary.syncedRecordsCount,
 			status: syncResponse.status,
-			lastSynced: new Date(syncResponse.summary.last_synced_at),
+			lastSynced: new Date(syncResponse.summary.lastSyncedAt),
+		}).then((res) => {
+			console.log(`[CHECK SYNC] successfully created`, res);
 		});
-		console.log(`[CHECK SYNC] successfully created`);
 		return Response.json(syncResponse);
 	} catch (error) {
 		console.error("[CHECK SYNC] failed to create");
