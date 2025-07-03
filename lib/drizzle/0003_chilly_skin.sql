@@ -1,0 +1,1 @@
+ALTER TABLE `SyncPipeline` ADD `config` text;

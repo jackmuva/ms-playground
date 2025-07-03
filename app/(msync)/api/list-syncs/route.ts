@@ -16,10 +16,10 @@ export async function GET(request: NextRequest) {
 
 	try {
 		const syncs = await getAllSyncs({ userId: user[0].id });
-		console.log(`[SYNCS] successfully retrieved`);
+		console.log(`[LIST SYNC] successfully retrieved`);
 		return Response.json(syncs);
 	} catch (error) {
-		console.error("[SYNCS] failed to retrieve");
+		console.error("[LIST SYNC] failed to retrieve");
 		return Response.json({ message: error });
 	}
 

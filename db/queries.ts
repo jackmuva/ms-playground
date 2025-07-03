@@ -194,6 +194,17 @@ export async function getAllSyncs({ userId }: { userId: string }) {
   }
 }
 
+export async function getSyncBySource({ userId, source }: { userId: string, source: string }) {
+  try {
+    return await db.select().from(syncPipeline).where(and(
+      eq(syncPipeline.userId, userId),
+      eq(syncPipeline.source, source))).limit(1);
+  } catch (error) {
+    console.error("Failed to retrieve syncs");
+    throw error;
+  }
+}
+
 export async function upsertSyncPipeline({
   syncId,
   source,
@@ -201,6 +212,7 @@ export async function upsertSyncPipeline({
   status,
   userId,
   data,
+  config,
 }: {
   syncId: string,
   source: string,
@@ -208,10 +220,11 @@ export async function upsertSyncPipeline({
   status: string,
   userId: string,
   data: string,
+  config: string,
 }) {
   try {
     const pipeline = await db.select().from(syncPipeline).where(eq(syncPipeline.syncId, syncId));
-    if (pipeline) {
+    if (pipeline.length > 0) {
       return await db.update(syncPipeline).set({
         lastSynced: lastSynced,
         status: status,
@@ -224,7 +237,8 @@ export async function upsertSyncPipeline({
         lastSynced: lastSynced,
         status: status,
         userId: userId,
-        data: data
+        data: data,
+        config: config,
       });
     }
   } catch (error) {

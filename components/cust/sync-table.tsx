@@ -23,7 +23,7 @@ export const SyncTable = ({
 }: {
 	session: { user: any, paragonUserToken?: string }
 }) => {
-	const { data: syncs, isLoading, } = useSWR<Array<SyncPipeline>>(session ? `/api/syncs` : null,
+	const { data: syncs, isLoading, } = useSWR<Array<SyncPipeline>>(session ? `/api/list-syncs` : null,
 		fetcher, { fallbackData: [] });
 	const [openModal, setOpenModal] = useState<boolean>(false);
 
@@ -64,10 +64,19 @@ export const SyncTable = ({
 								{syncs?.map((sync) => {
 									return (
 										<tr key={sync.id} className="border-2 rounded-xl m-1 ">
-											<td className="text-center py-6">{sync.source}</td>
+											<td className="py-6 ">
+												<a href={`${window.location.origin}/sync-detail?source=${sync.source}`}
+													className="flex space-x-2 items-center justify-center hover:text-indigo-600">
+													<img src={sync.source === 'googledrive' ? "https://cdn.useparagon.com/latest/dashboard/public/integrations/googledrive.svg" : ""}
+														className="h-6 w-6" />
+													<p className="hover:border-b"> {sync.source}</p>
+												</a>
+											</td>
 											<td className="text-center">{sync.status}</td>
 											<td className="text-center">{new Date(sync.lastSynced).toLocaleString()}</td>
-											<td></td>
+											<td>
+
+											</td>
 										</tr>
 									);
 								})}

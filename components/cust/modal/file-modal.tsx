@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import useParagon from "@/lib/paragon/useParagon";
 import { paragon } from "@useparagon/connect";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fetcher } from "@/lib/utils";
+import { SyncPipeline } from "@/db/schema";
+import useSWR from "swr";
 
 export const FileModal = ({
 	integration,
@@ -16,6 +19,13 @@ export const FileModal = ({
 		session.paragonUserToken ?? ""
 	);
 	const [folder, setFolder] = useState<any>({});
+	const { data: sync, isLoading, } = useSWR<Array<SyncPipeline>>(session ? `/api/get-sync?source=${integration.type}` : null,
+		fetcher, { fallbackData: [] });
+	useEffect(() => {
+		if (sync && sync.length > 0) {
+			setFolder({ name: JSON.parse(sync[0].config).folder });
+		}
+	}, [isLoading]);
 
 	const disconnectIntegration = async (integration: string) => {
 		await paragonConnect?.uninstallIntegration(integration);
@@ -33,9 +43,18 @@ export const FileModal = ({
 			allowedTypes: ["application/vnd.google-apps.folder"],
 			allowMultiSelect: false,
 			allowFolderSelect: true,
-			onFileSelect: (files) => {
-				console.log(files)
-				setFolder(files);
+			onFileSelect: async (files: any) => {
+				const req = await fetch(`${window.location.origin}/api/new-sync`, {
+					method: "POST",
+					body: JSON.stringify({
+						integration: integration.type,
+						pipeline: "files",
+						config: { folder: files.docs[0].name },
+					}),
+				});
+				const res = await req.json();
+				console.log(res);
+				setFolder(files.docs[0]);
 			}
 		});
 		if (process.env.NEXT_PUBLIC_GOOGLE_API_KEY) {
@@ -96,7 +115,13 @@ export const FileModal = ({
 					Select folder
 				</Button>) : (<div className="flex items-center justify-center space-x-2">
 					<div className="px-2 py-1 border-2 border-indigo-700">
-						/{folder.docs[0].name}
+						{isLoading ? (
+							<div className="p-2 my-[2px]">
+								<div
+									className={`w-4 h-[20px] rounded-md bg-zinc-200 dark:bg-zinc-600 animate-pulse`}
+								/>
+							</div>
+						) : (<p>/{folder.name}</p>)}
 					</div>
 					<Button
 						variant="default"
