@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 		});
 		const syncResponse = await syncRequest.json();
 
-		await upsertSyncPipeline({
+		upsertSyncPipeline({
 			syncId: syncResponse.id,
 			source: body.integration,
 			lastSynced: new Date(),
@@ -45,8 +45,9 @@ export async function POST(request: NextRequest) {
 			data: JSON.stringify(syncResponse),
 			config: JSON.stringify(body.config),
 			recordCount: 0
+		}).then((res) => {
+			console.log(`[NEW SYNC] successfully created`, res);
 		});
-		console.log(`[NEW SYNC] successfully created`);
 		return Response.json(syncResponse);
 	} catch (error) {
 		console.error("[NEW SYNC] failed to create");

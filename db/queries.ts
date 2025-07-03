@@ -232,6 +232,7 @@ export async function upsertSyncPipeline({
         status: status,
         data: data,
         recordCount: recordCount,
+        config: config,
       }).where(eq(syncPipeline.syncId, syncId));
     } else {
       return await db.insert(syncPipeline).values({

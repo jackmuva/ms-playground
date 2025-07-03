@@ -4,7 +4,7 @@ import { SyncPipeline } from "@/db/schema";
 import useSWR from "swr";
 import { Button } from "../ui/button";
 import { useState } from "react";
-import { SyncModal } from "./modal/sync-modal";
+import { SyncModal } from "./sync-modal/sync-modal";
 import { ICONS } from "@/lib/paragon/useParagon";
 export const LoadingTable = () => {
 	return (<div className="flex flex-col max-w-[1200px] w-full">
@@ -74,7 +74,9 @@ export const SyncTable = ({
 													<p className="hover:border-b"> {sync.source}</p>
 												</a>
 											</td>
-											<td className="text-center">{sync.status}</td>
+											<td className="text-center">{sync.status === "IDLE" ? "Sync Complete" : (
+												sync.status === "INITIALIZING" ? "Sync Started" : "Syncing"
+											)}</td>
 											<td className="text-center">{new Date(sync.lastSynced).toLocaleString()}</td>
 											<td className="text-right pr-4">
 												<Button
