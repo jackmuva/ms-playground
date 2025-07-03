@@ -5,6 +5,9 @@ let paragon: ConnectSDK | undefined;
 
 export const CRM_CATEGORY = ['salesforce', 'hubspot']
 export const FILE_CATEGORY = ['googledrive', 'box', 'dropbox', 'sharepoint']
+export const ICONS = {
+  googledrive: "https://cdn.useparagon.com/latest/dashboard/public/integrations/googledrive.svg",
+}
 
 export default function useParagon(paragonUserToken: string) {
   useEffect(() => {

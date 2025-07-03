@@ -5,6 +5,7 @@ import useSWR from "swr";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import { SyncModal } from "./modal/sync-modal";
+import { ICONS } from "@/lib/paragon/useParagon";
 export const LoadingTable = () => {
 	return (<div className="flex flex-col max-w-[1200px] w-full">
 		{[44, 32, 28, 52].map((item) => (
@@ -68,7 +69,7 @@ export const SyncTable = ({
 											<td className="py-6 ">
 												<a href={`${window.location.origin}/sync-detail/${sync.source}`}
 													className="flex space-x-2 items-center justify-center hover:text-indigo-600">
-													<img src={sync.source === 'googledrive' ? "https://cdn.useparagon.com/latest/dashboard/public/integrations/googledrive.svg" : ""}
+													<img src={sync.source === 'googledrive' ? ICONS[sync.source] : ""}
 														className="h-6 w-6" />
 													<p className="hover:border-b"> {sync.source}</p>
 												</a>
@@ -80,7 +81,7 @@ export const SyncTable = ({
 													variant="outline"
 													size="sm"
 													className=""
-													onClick={() => toggleModal({ type: sync.source, name: "Google Drive", icon: "https://cdn.useparagon.com/latest/dashboard/public/integrations/googledrive.svg" })}
+													onClick={() => toggleModal({ type: sync.source, name: "Google Drive", icon: ICONS[sync.source].toString() })}
 												>
 													Configure
 												</Button>
