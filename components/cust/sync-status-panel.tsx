@@ -23,7 +23,7 @@ export const SyncStatusPanel = ({
 			<div className="w-2/6 flex flex-col h-full pt-8">
 				<div className="flex items-center space-x-2">
 					<div className="rounded-full h-[15px] w-[15px] bg-green-500" />
-					<p className="text-sm text-muted-foreground">Discovered {sync[0].recordCount} files available</p>
+					<p className="text-sm text-muted-foreground">Discovered files available</p>
 				</div>
 				<div className="border-l border-muted-foreground h-4 ml-[6.5px]" />
 				<div className="flex items-center space-x-2">
@@ -37,7 +37,7 @@ export const SyncStatusPanel = ({
 				</div>
 				<div className="border-l border-muted-foreground h-4 ml-[6.5px]" />
 				<div className="flex items-center space-x-2">
-					<div className="rounded-full h-[15px] w-[15px] bg-green-500 animate-pulse" />
+					<div className="rounded-full h-[15px] w-[15px] bg-indigo-600 animate-pulse" />
 					<p className="text-sm text-muted-foreground">Setting up change detection</p>
 				</div>
 			</div>

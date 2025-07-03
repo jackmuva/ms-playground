@@ -1,5 +1,8 @@
 import { userWithToken } from "@/app/(auth)/auth";
 import { SyncStatusPanel } from "@/components/cust/sync-status-panel";
+import { SyncTabContent } from "@/components/cust/sync-tab-content";
+
+
 
 export default async function SyncDetail({
   params,
@@ -14,6 +17,7 @@ export default async function SyncDetail({
       <div className="max-w-[1000px] w-11/12 flex flex-col space-y-4">
         <h1 className="pt-5 font-semibold text-2xl">{source === "googledrive" ? "Google Drive" : ""} Sync</h1>
         <SyncStatusPanel source={source} session={session} />
+        <SyncTabContent source={source} session={session} />
       </div>
     </div>
   );
