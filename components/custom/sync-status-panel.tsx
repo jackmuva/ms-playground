@@ -2,7 +2,13 @@
 import useSWR from "swr";
 import { SyncPipeline } from "@/db/schema";
 import { fetcher } from "@/lib/utils";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { SyncSteps } from "./sync-steps";
+
+export interface SyncStep {
+	description: string,
+	status: "completed" | "in-progress" | "not-started"
+}
 
 export const SyncStatusPanel = ({
 	source,
@@ -14,7 +20,6 @@ export const SyncStatusPanel = ({
 
 	const { data: sync, isLoading, mutate } = useSWR<Array<SyncPipeline>>(session ? `/api/get-sync?source=${source}` : null,
 		fetcher, { fallbackData: [] });
-	console.log(sync);
 	useEffect(() => {
 		if (sync && sync.length > 0 && sync[0].status === "INITIALIZING") {
 			fetch(`${window.location.origin}/api/check-sync`, {
@@ -32,6 +37,12 @@ export const SyncStatusPanel = ({
 			});;;
 		}
 	}, [sync]);
+	const [steps, setSteps] = useState<Array<SyncStep>>([
+		{ description: "Discovered files available", status: "completed" },
+		{ description: "Normalized metadata for files", status: "completed" },
+		{ description: "Built permissions graph", status: "completed" },
+		{ description: "Setting up change detection", status: "in-progress" },
+	]);
 
 	return (
 		<div className="border-2 rounded-sm w-full h-60 flex">
@@ -39,25 +50,7 @@ export const SyncStatusPanel = ({
 				<div className="text-sm font-semibold">Status</div>
 			</div>
 			<div className="w-2/6 flex flex-col h-full pt-8">
-				<div className="flex items-center space-x-2">
-					<div className="rounded-full h-[15px] w-[15px] bg-green-500" />
-					<p className="text-sm text-muted-foreground">Discovered files available</p>
-				</div>
-				<div className="border-l border-muted-foreground h-4 ml-[6.5px]" />
-				<div className="flex items-center space-x-2">
-					<div className="rounded-full h-[15px] w-[15px] bg-green-500" />
-					<p className="text-sm text-muted-foreground">Normalized metadata for files</p>
-				</div>
-				<div className="border-l border-muted-foreground h-4 ml-[6.5px]" />
-				<div className="flex items-center space-x-2">
-					<div className="rounded-full h-[15px] w-[15px] bg-green-500" />
-					<p className="text-sm text-muted-foreground">Built permissions graph</p>
-				</div>
-				<div className="border-l border-muted-foreground h-4 ml-[6.5px]" />
-				<div className="flex items-center space-x-2">
-					<div className="rounded-full h-[15px] w-[15px] bg-indigo-600 animate-pulse" />
-					<p className="text-sm text-muted-foreground">Setting up change detection</p>
-				</div>
+				<SyncSteps steps={steps} />
 			</div>
 			<div className="w-3/6 flex">
 				<div className="w-1/3 flex flex-col h-full justify-evenly">
