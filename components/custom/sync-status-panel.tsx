@@ -1,28 +1,26 @@
+"use client";
 import useSWR from "swr";
 import { SyncPipeline } from "@/db/schema";
 import { fetcher } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { SyncSteps } from "./sync-steps";
-import { SyncStatus } from "./sync-detail";
 
 export interface SyncStep {
 	description: string,
 	status: "completed" | "in-progress" | "not-started"
 }
 
+export type SyncStatus = "INITIALIZING" | "ACTIVE" | "IDLE";
+
 
 export const SyncStatusPanel = ({
 	source,
 	session,
-	currentSyncStatus,
-	setCurrentSyncStatus,
 }: {
 	source: string,
 	session: { user: any, paragonUserToken?: string },
-	currentSyncStatus: SyncStatus | null,
-	setCurrentSyncStatus: (status: SyncStatus) => void,
 }) => {
-
+	const [currentSyncStatus, setCurrentSyncStatus] = useState<SyncStatus | null>(null);
 	const { data: sync, isLoading, mutate } = useSWR<Array<SyncPipeline>>(session ? `/api/get-sync?source=${source}` : null,
 		fetcher, { fallbackData: [] });
 
