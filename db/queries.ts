@@ -157,34 +157,34 @@ export async function createWebhook({
   }
 }
 
-export async function createSyncTrigger({
-  syncId,
-  integration,
-  receivedAt,
-  data,
-  userId,
-}: {
-  syncId: string,
-  integration: string,
-  receivedAt: Date,
-  data: string,
-  userId: string,
-}) {
-  try {
-    return await db.insert(activity).values({
-      syncId: syncId,
-      event: "sync_triggered",
-      source: integration,
-      receivedAt: receivedAt,
-      data: data,
-      userId: userId
-    });
-  } catch (error) {
-    console.error("Failed to create activity in database");
-    throw error;
-  }
-}
-
+//export async function createSyncTrigger({
+//  syncId,
+//  integration,
+//  receivedAt,
+//  data,
+//  userId,
+//}: {
+//  syncId: string,
+//  integration: string,
+//  receivedAt: Date,
+//  data: string,
+//  userId: string,
+//}) {
+//  try {
+//    return await db.insert(activity).values({
+//      syncId: syncId,
+//      event: "sync_triggered",
+//      source: integration,
+//      receivedAt: receivedAt,
+//      data: data,
+//      userId: userId
+//    });
+//  } catch (error) {
+//    console.error("Failed to create activity in database");
+//    throw error;
+//  }
+//}
+//
 export async function getAllSyncs({ userId }: { userId: string }) {
   try {
     return await db.select().from(syncPipeline).where(eq(syncPipeline.userId, userId));
@@ -198,9 +198,10 @@ export async function getSyncBySource({ userId, source }: { userId: string, sour
   try {
     return await db.select().from(syncPipeline).where(and(
       eq(syncPipeline.userId, userId),
-      eq(syncPipeline.source, source))).limit(1);
+      eq(syncPipeline.source, source)
+    )).limit(1);
   } catch (error) {
-    console.error("Failed to retrieve syncs");
+    console.error("Failed to retrieve syncs", error);
     throw error;
   }
 }

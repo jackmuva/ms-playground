@@ -2,6 +2,9 @@ import useSWR from "swr";
 import { Record, SyncPipeline } from "@/db/schema";
 import { downloadRecord, fetcher } from "@/lib/utils";
 import { Download } from "lucide-react";
+import { useState } from "react";
+import { FileDetailModal } from "./file-detail-modal";
+import { set } from "zod";
 
 export const RecordsTable = ({
   source,
@@ -15,6 +18,12 @@ export const RecordsTable = ({
 
   const { data: sync, isLoading: isSyncLoading } = useSWR<Array<SyncPipeline>>(session ? `/api/get-sync?source=${source}` : null,
     fetcher, { fallbackData: [] });
+
+  const [selectedRecord, setSelectedRecord] = useState<Record | null>(null);
+
+  const closeModal = () => {
+    setSelectedRecord(null);
+  }
 
   return (
     <div className="py-3">
@@ -54,7 +63,7 @@ export const RecordsTable = ({
                     records?.map((record) => {
                       return (
                         <tr key={record.id} className="border-b hover:bg-muted/50 cursor-pointer"
-                          onClick={() => { console.log('hi') }}>
+                          onClick={() => { setSelectedRecord(record) }}>
                           <td className="text-sm p-2">
                             {JSON.parse(record.data as string).name ?? ""}
                           </td>
@@ -84,6 +93,7 @@ export const RecordsTable = ({
               </tbody>
             </table>
           </div>
+          {selectedRecord && <FileDetailModal syncId={sync![0].syncId} record={selectedRecord} closeModal={closeModal} />}
         </div>
       )
       }

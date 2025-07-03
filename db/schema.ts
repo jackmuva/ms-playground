@@ -17,6 +17,7 @@ export const user = sqliteTable("User", {
 
 export type User = InferSelectModel<typeof user>;
 
+//TODO: change to recordId
 export const record = sqliteTable(
   "Record",
   {

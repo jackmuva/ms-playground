@@ -67,3 +67,13 @@ export function generateUUID(): string {
 }
 
 
+export function formatJson(data: object | string): string {
+  try {
+    if (typeof data === "string") {
+      return JSON.stringify(JSON.parse(data), null, 2);
+    }
+    return JSON.stringify(data, null, 2);
+  } catch {
+    return String(data);
+  }
+};

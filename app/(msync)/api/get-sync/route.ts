@@ -16,6 +16,8 @@ export async function GET(request: NextRequest) {
 	}
 
 	try {
+		console.log(user);
+		console.log(source);
 		const sync = await getSyncBySource({ userId: user[0].id, source: source ?? "" });
 		console.log(`[LIST SYNC] successfully retrieved`);
 		return Response.json(sync);

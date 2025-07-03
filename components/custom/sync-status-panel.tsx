@@ -23,6 +23,7 @@ export const SyncStatusPanel = ({
 	const [currentSyncStatus, setCurrentSyncStatus] = useState<SyncStatus | null>(null);
 	const { data: sync, isLoading, mutate } = useSWR<Array<SyncPipeline>>(session ? `/api/get-sync?source=${source}` : null,
 		fetcher, { fallbackData: [] });
+	console.log(sync);
 
 	const [steps, setSteps] = useState<Array<SyncStep>>([
 		{ description: "Discovered files available", status: "not-started" },
@@ -138,7 +139,7 @@ export const SyncStatusPanel = ({
 				<div className="w-2/3 flex flex-col h-full justify-evenly">
 					{(sync !== undefined && sync.length > 0) && <>
 						<div className="text-sm text-muted-foreground">{new Date(sync[0].lastSynced).toLocaleString()}</div>
-						<div className="text-sm text-muted-foreground">{JSON.parse(sync[0].config as string).folder}</div>
+						<div className="text-sm text-muted-foreground">{JSON.parse(sync[0].config as string).folder ?? ""}</div>
 						<div className="text-sm text-muted-foreground">{sync[0].recordCount ?? 0}</div>
 						<div className="text-sm text-muted-foreground">{sync[0].syncId}</div>
 					</>}

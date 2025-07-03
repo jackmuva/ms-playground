@@ -5,7 +5,6 @@ export const SyncSteps = ({
 }: {
   steps: Array<SyncStep>,
 }) => {
-  console.log(steps);
   return (
     <>
       {steps.map((step, index) => {
