@@ -1,5 +1,5 @@
 import { userWithToken } from "./(auth)/auth";
-import { SyncTable } from "@/components/cust/sync-table";
+import { SyncTable } from "@/components/custom/sync-table";
 
 export default async function Page() {
   const session = await userWithToken();

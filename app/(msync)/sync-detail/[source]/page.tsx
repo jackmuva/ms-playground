@@ -1,6 +1,6 @@
 import { userWithToken } from "@/app/(auth)/auth";
-import { SyncStatusPanel } from "@/components/cust/sync-status-panel";
-import { SyncTabContent } from "@/components/cust/sync-tab-content";
+import { SyncStatusPanel } from "@/components/custom/sync-status-panel";
+import { SyncTabContent } from "@/components/custom/sync-tab-content";
 
 
 
