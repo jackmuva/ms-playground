@@ -1,7 +1,6 @@
-import ConnectSDK from "@useparagon/connect/ConnectSDK";
+import { paragon } from "@useparagon/connect";
 import { useCallback, useEffect, useState } from "react";
 
-let paragon: ConnectSDK | undefined;
 
 export const CRM_CATEGORY = ['salesforce', 'hubspot']
 export const FILE_CATEGORY = ['googledrive', 'box', 'dropbox', 'sharepoint']
@@ -10,12 +9,6 @@ export const ICONS = {
 }
 
 export default function useParagon(paragonUserToken: string) {
-  useEffect(() => {
-    if (typeof window !== "undefined" && typeof paragon === "undefined") {
-      paragon = new ConnectSDK();
-    }
-  }, []);
-
   const [user, setUser] = useState(paragon ? paragon.getUser() : null);
   const [error, setError] = useState();
 

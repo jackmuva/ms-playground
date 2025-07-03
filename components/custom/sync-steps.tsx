@@ -10,7 +10,7 @@ export const SyncSteps = ({
     <>
       {steps.map((step, index) => {
         return (
-          <>
+          <div key={index}>
             <div className="flex items-center space-x-2">
               {step.status === "completed" ? (
                 <div className="rounded-full h-[15px] w-[15px] bg-green-500" />) :
@@ -23,7 +23,7 @@ export const SyncSteps = ({
             </div>
             {(index < (steps.length - 1)) &&
               <div className="border-l border-muted-foreground h-4 ml-[6.5px]" />}
-          </>
+          </div>
         )
       })}
     </>

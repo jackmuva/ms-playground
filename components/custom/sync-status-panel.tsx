@@ -20,29 +20,90 @@ export const SyncStatusPanel = ({
 
 	const { data: sync, isLoading, mutate } = useSWR<Array<SyncPipeline>>(session ? `/api/get-sync?source=${source}` : null,
 		fetcher, { fallbackData: [] });
-	useEffect(() => {
-		if (sync && sync.length > 0 && sync[0].status === "INITIALIZING") {
-			fetch(`${window.location.origin}/api/check-sync`, {
-				method: "POST",
-				body: JSON.stringify({ syncId: sync[0].syncId }),
-				headers: {
-					"Content-Type": "application/json",
-				},
 
-			}).then((status) => {
-				console.log(status);
-				mutate();
-			}).catch((err) => {
-				console.error('unable to check status', err);
-			});
-		}
-	}, [sync]);
 	const [steps, setSteps] = useState<Array<SyncStep>>([
 		{ description: "Discovered files available", status: "completed" },
 		{ description: "Normalized metadata for files", status: "not-started" },
 		{ description: "Built permissions graph", status: "not-started" },
 		{ description: "Setting up change detection", status: "not-started" },
+		{ description: "Listening for updates", status: "not-started" },
 	]);
+
+	const [currentSyncStatus, setCurrentSyncStatus] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (sync && sync.length > 0) {
+			const syncStatus = sync[0].status;
+			if (syncStatus !== currentSyncStatus) {
+				setCurrentSyncStatus(syncStatus);
+
+				if (syncStatus === "INITIALIZING") {
+					setSteps([
+						{ description: "Discovered files available", status: "completed" },
+						{ description: "Normalized metadata for files", status: "not-started" },
+						{ description: "Built permissions graph", status: "not-started" },
+						{ description: "Setting up change detection", status: "not-started" },
+						{ description: "Listening for updates", status: "not-started" },
+					]);
+					initialSteps().then((res) => {
+						if (res) {
+							fetch(`${window.location.origin}/api/check-sync`, {
+								method: "POST",
+								body: JSON.stringify({ syncId: sync[0].syncId }),
+								headers: {
+									"Content-Type": "application/json",
+								},
+							}).then((status) => {
+								console.log(status);
+								mutate();
+							}).catch((err) => {
+								console.error('unable to check status', err);
+							});
+						}
+					});
+				} else if (syncStatus === "ACTIVE") {
+					setSteps([
+						{ description: "Discovered files available", status: "completed" },
+						{ description: "Normalized metadata for files", status: "completed" },
+						{ description: "Built permissions graph", status: "completed" },
+						{ description: "Setting up change detection", status: "in-progress" },
+						{ description: "Listening for updates", status: "not-started" },
+					]);
+				} else {
+					setSteps([
+						{ description: "Discovered files available", status: "completed" },
+						{ description: "Normalized metadata for files", status: "completed" },
+						{ description: "Built permissions graph", status: "completed" },
+						{ description: "Setting up change detection", status: "completed" },
+						{ description: "Listening for updates", status: "in-progress" },
+					]);
+				}
+			}
+		}
+	}, [sync, currentSyncStatus]);
+
+	const initialSteps = async () => {
+		await new Promise(resolve => setTimeout(resolve, 500));
+		setSteps(prev => prev.map((step, index) =>
+			index === 1 ? { ...step, status: "in-progress" } : step
+		));
+
+		await new Promise(resolve => setTimeout(resolve, 1000));
+		setSteps(prev => prev.map((step, index) =>
+			index === 1 ? { ...step, status: "completed" } : step
+		));
+
+		await new Promise(resolve => setTimeout(resolve, 500));
+		setSteps(prev => prev.map((step, index) =>
+			index === 2 ? { ...step, status: "in-progress" } : step
+		));
+
+		await new Promise(resolve => setTimeout(resolve, 1000));
+		setSteps(prev => prev.map((step, index) =>
+			index === 2 ? { ...step, status: "completed" } : step
+		));
+		return true;
+	}
 
 	return (
 		<div className="border-2 rounded-sm w-full h-60 flex">
@@ -62,7 +123,7 @@ export const SyncStatusPanel = ({
 				<div className="w-2/3 flex flex-col h-full justify-evenly">
 					{(sync !== undefined && sync.length > 0) && <>
 						<div className="text-sm text-muted-foreground">{new Date(sync[0].lastSynced).toLocaleString()}</div>
-						<div className="text-sm text-muted-foreground">{JSON.parse(sync[0].config).folder}</div>
+						<div className="text-sm text-muted-foreground">{JSON.parse(sync[0].config as string).folder}</div>
 						<div className="text-sm text-muted-foreground">{sync[0].recordCount ?? 0}</div>
 						<div className="text-sm text-muted-foreground">{sync[0].syncId}</div>
 					</>}
@@ -71,3 +132,4 @@ export const SyncStatusPanel = ({
 		</div>
 	);
 }
+

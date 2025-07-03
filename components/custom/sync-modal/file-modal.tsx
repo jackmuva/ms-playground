@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import useParagon from "@/lib/paragon/useParagon";
-import { paragon } from "@useparagon/connect";
 import { useEffect, useState } from "react";
 import { fetcher } from "@/lib/utils";
 import { SyncPipeline } from "@/db/schema";
@@ -15,9 +14,10 @@ export const FileModal = ({
 	session: { user: any, paragonUserToken?: string },
 	goBack: () => void;
 }) => {
-	const { user: user, paragon: paragonConnect } = useParagon(
+	const { user, paragon } = useParagon(
 		session.paragonUserToken ?? ""
 	);
+
 	const [folder, setFolder] = useState<any>({});
 	const { data: sync, isLoading, } = useSWR<Array<SyncPipeline>>(session ? `/api/get-sync?source=${integration.type}` : null,
 		fetcher, { fallbackData: [] });
@@ -28,11 +28,11 @@ export const FileModal = ({
 	}, [isLoading]);
 
 	const disconnectIntegration = async (integration: string) => {
-		await paragonConnect?.uninstallIntegration(integration);
+		await paragon?.uninstallIntegration(integration, {});
 	}
 
 	const connectIntegration = async (integration: string) => {
-		await paragonConnect?.installIntegration(integration);
+		await paragon?.installIntegration(integration, {});
 	}
 
 	//@ts-ignore
