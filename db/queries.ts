@@ -213,6 +213,7 @@ export async function upsertSyncPipeline({
   userId,
   data,
   config,
+  recordCount,
 }: {
   syncId: string,
   source: string,
@@ -221,6 +222,7 @@ export async function upsertSyncPipeline({
   userId: string,
   data: string,
   config: string,
+  recordCount: number,
 }) {
   try {
     const pipeline = await db.select().from(syncPipeline).where(eq(syncPipeline.syncId, syncId));
@@ -229,6 +231,7 @@ export async function upsertSyncPipeline({
         lastSynced: lastSynced,
         status: status,
         data: data,
+        recordCount: recordCount,
       }).where(eq(syncPipeline.syncId, syncId));
     } else {
       return await db.insert(syncPipeline).values({
@@ -239,6 +242,7 @@ export async function upsertSyncPipeline({
         userId: userId,
         data: data,
         config: config,
+        recordCount: 0
       });
     }
   } catch (error) {

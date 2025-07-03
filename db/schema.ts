@@ -81,6 +81,7 @@ export const syncPipeline = sqliteTable(
     data: text("data", { mode: "json" }),
     userId: text("userId").notNull(),
     config: text("config", { mode: "json" }),
+    recordCount: integer("recordCount"),
   },
   (table) => {
     return {

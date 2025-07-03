@@ -1,15 +1,11 @@
-import { generateUUID } from "@/lib/utils";
 import { userWithToken } from "./(auth)/auth";
-import { HomePage } from "@/components/cust/home-page";
+import { SyncTable } from "@/components/cust/sync-table";
 
 export default async function Page() {
-  const id = generateUUID();
   const session = await userWithToken();
   return (
-    <HomePage
-      session={session}
-      key={id}
-      id={id}
-    />
+    <div className="flex justify-center max-w-full h-dvh pt-12">
+      <SyncTable session={session} />
+    </div>
   );
 }
