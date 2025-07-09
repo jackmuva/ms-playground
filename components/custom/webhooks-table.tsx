@@ -52,10 +52,10 @@ export const WebhooksTable = ({
                             {webhook.event}
                           </td>
                           <td className="text-sm p-2">
-                            {new Date(webhook.receivedAt.toString()).toLocaleString()}
+                            {new Date(webhook.receivedAt).toLocaleString()}
                           </td>
                           <td className="text-sm p-2">
-                            {JSON.parse(webhook.data as string).file ?? ""}
+                            {JSON.parse(webhook.data).file ?? ""}
                           </td>
                           <td className="p-4">
                           </td>
